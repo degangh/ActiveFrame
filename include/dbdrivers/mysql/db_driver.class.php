@@ -22,62 +22,64 @@ class dbstuff {
 	private $dbname;
 	private $pconnect;
 	
-	function connect($dbhost, $dbuser, $dbpw, $dbname = '', $pconnect = 0, $halt = TRUE) {
+	function connect($dbhost, $dbuser, $dbpw, $dbname = '', $pconnect = 1, $halt = TRUE) {
 		$this->dbhost=$dbhost;
 		$this->dbuser=$dbuser;
 		$this->dbpw=$dbpw;
 		$this->dbname=$dbname;
 		$this->pconnect=$pconnect;
 		if($pconnect) {
-			if(!$this->link = @mysql_pconnect($dbhost, $dbuser, $dbpw)) {
-				$halt && $this->halt('Can not connect to MySQL server');
+			if(!$this->link = mysqli_connect("p:".$dbhost, $dbuser, $dbpw)) {
+				$halt && $this->halt('Can not connect to MySQL server aha');
 			}
 		} else {
-			if(!$this->link = @mysql_connect($dbhost, $dbuser, $dbpw, 1)) {
-				$halt && $this->halt('Can not connect to MySQL server');
+			if(!$this->link = mysqli_connect("p:".$dbhost, $dbuser, $dbpw)) {
+				$halt && $this->halt('Can not connect to MySQL server ooloo');
 			}
 		}
 		if($this->version() > '4.1') {
 			$dbcharset='utf8';
 			if($dbcharset) {
-				@mysql_query("SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary", $this->link);
+				@mysqli_query("SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary", $this->link);
 			}
 			if($this->version() > '5.0.1') {
-				@mysql_query("SET sql_mode=''", $this->link);
+				@mysqli_query("SET sql_mode=''", $this->link);
 			}
 		}
 
 		if($dbname) {
-			@mysql_select_db($dbname, $this->link);
+			mysqli_select_db($this->link, $dbname);
 		}
 	}
 
 	function select_db($dbname) {
-		return mysql_select_db($dbname, $this->link);
+		return mysqli_select_db($this->link, $dbname);
 	}
 
 	function fetch_array($query, $result_type = MYSQL_ASSOC) {
-		return mysql_fetch_array($query, $result_type);
+		return mysqli_fetch_assoc($query);
 	}
 	
 	function real_escape_string($str)
 	{
-		return mysql_real_escape_string((string)$str,$this->link);
+		return mysqli_real_escape_string($this->link, (string)$str);
 	}
 	
 	function query($sql, $params=null, $type = '') 
 	{
 		global $APP_ENV;
-		$func = $type == 'UNBUFFERED' && @function_exists('mysql_unbuffered_query') ? 'mysql_unbuffered_query' : 'mysql_query';
+		//mysql_unbuffered_query followed by mysqli_use_result
+		//unbuffered
+		$func = $type == 'UNBUFFERED' && @function_exists('mysqli_unbuffered_query') ? 'mysql_unbuffered_query' : 'mysqli_query';
 		if(!empty($params) && is_array($params)) {
 			foreach($params as $k=>$v)
 			{
 				if($v===NULL) $params[$k]='NULL';
-				else $params[$k]='\''.mysql_real_escape_string((string)$v,$this->link).'\'';
+				else $params[$k]='\''.mysqli_real_escape_string($this->link, (string)$v).'\'';
 			}	
 			$sql=str_replace(array_keys($params),array_values($params),$sql);
 		}
-		if(!($query = $func($sql, $this->link))) {
+		if(!($query = $func($this->link, $sql))) {
 			if(in_array($this->errno(), array(2006, 2013)) && substr($type, 0, 5) != 'RETRY') {
 				$this->close();
 				$this->connect($this->dbhost,$this->dbuser,$this->dbpw, $this->dbname, $this->pconnect);
@@ -99,55 +101,55 @@ class dbstuff {
 	}
 
 	function affected_rows() {
-		return mysql_affected_rows($this->link);
+		return mysqli_affected_rows($this->link);
 	}
 
 	function error() {
-		return (($this->link) ? mysql_error($this->link) : mysql_error());
+		return (($this->link) ? mysqli_error($this->link) : mysqli_error());
 	}
 
 	function errno() {
-		return intval(($this->link) ? mysql_errno($this->link) : mysql_errno());
+		return intval(($this->link) ? mysqli_errno($this->link) : mysqli_errno());
 	}
 
 	function result($query, $row) {
-		$query = @mysql_result($query, $row);
+		$query = @mysqli_result($query, $row);
 		return $query;
 	}
 
 	function num_rows($query=NULL) {
 		if(!isset($query)) $query=$this->query;
-		$query = mysql_num_rows($query);
+		$query = mysqli_num_rows($query);
 		return $query;
 	}
 
 	function num_fields($query) {
-		return mysql_num_fields($query);
+		return mysqli_num_fields($query);
 	}
 
 	function free_result($query) {
-		return mysql_free_result($query);
+		return mysqli_free_result($query);
 	}
 
 	function insert_id() {
-		return ($id = mysql_insert_id($this->link)) >= 0 ? $id : $this->result($this->query("SELECT last_insert_id()"), 0);
+		return ($id = mysqli_insert_id($this->link)) >= 0 ? $id : $this->result($this->query("SELECT last_insert_id()"), 0);
 	}
 
 	function fetch_row($query) {
-		$query = mysql_fetch_row($query);
+		$query = mysqli_fetch_row($query);
 		return $query;
 	}
 
 	function fetch_fields($query) {
-		return mysql_fetch_field($query);
+		return mysqli_fetch_field($query);
 	}
 
 	function version() {
-		return mysql_get_server_info($this->link);
+		return mysqli_get_server_info($this->link);
 	}
 
 	function close() {
-		return mysql_close($this->link);
+		return mysqli_close($this->link);
 	}
 
 	function halt($message = '', $sql = '') 
@@ -194,7 +196,7 @@ class dbstuff {
 		$sql.=$limtText;
 		$query=$this->query($sql,$params);
 		if($query===false) return false;
-		while($row=mysql_fetch_array($query,MYSQL_ASSOC)) $records[]=$row;
+		while($row=mysqli_fetch_assoc($query)) $records[]=$row;
 		if($records==false) $records=array();
 		return $records;
 	}
@@ -208,15 +210,15 @@ class dbstuff {
 	function oQuery($sql)
 	{
 		$r=$this->query($sql);
-		$table=mysql_field_table($r,0);
+		$table=mysqli_field_table($r,0);
 		return new CCollection($table,$r);
 	}
 	
 	function fetchSmartRecord($query)
 	{
 		if($query===false) return false;
-		$table=mysql_field_table($query,0);
-		$row=mysql_fetch_array ($query,MYSQL_ASSOC);
+		$table=mysqli_field_table($query,0);
+		$row=mysqli_fetch_assoc ($query);
 		if($row===false) return false;
 		return new CSmartRecord($table,$row);
 	}
@@ -224,8 +226,8 @@ class dbstuff {
 	{
 		$query=$this->query("select * from $table where id='$id' limit 1");
 		if($query===false) return false;
-		$table=mysql_field_table($query,0);
-		$row=mysql_fetch_array ($query,MYSQL_ASSOC);
+		$table=mysqli_field_table($query,0);
+		$row=mysqli_fetch_assoc ($query);
 		if($row===false) return false;
 		return new CSmartRecord($table,$row);
 	}
@@ -234,13 +236,13 @@ class dbstuff {
 	{
 		$query=$this->query($sql);
 		if($query===false) return false;
-		$num=mysql_num_fields($query);
+		$num=mysqli_num_fields($query);
 		$tableSet=array();
 		
 		for($i=0;$i<$num;$i++)
 		{
-			mysql_field_seek ($query,$i);
-			$obj=mysql_fetch_field($query,$i);
+			mysqli_field_seek ($query,$i);
+			$obj=mysqli_fetch_field($query,$i);
 			$tableSet[$obj->table]['collist'][$obj->name]=array(
 													'default' => $obj->def,
 													'primary_key' => $obj->primary_key);
@@ -258,7 +260,7 @@ class dbstuff {
 			if(!isset($tableSet[$key]['primarykeyName'])) throw new RuntimeException('Can\'t load data set without primary key from table:'.$key);
 		}
 		$records=array();
-		while($row=mysql_fetch_array($query,MYSQL_ASSOC)) $records[]=new CActiveRecord($tableSet,$row);
+		while($row=mysqli_fetch_assoc($query)) $records[]=new CActiveRecord($tableSet,$row);
 		return $records;
 	}
 }

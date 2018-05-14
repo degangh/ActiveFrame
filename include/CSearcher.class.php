@@ -210,6 +210,7 @@ class CSearcher implements ArrayAccess
 			if(strtolower($this->orderDirection)=='desc') $this->sql.=" DESC";
 			else  $this->sql.=" ASC";
 		}
+
 	}
 	
 	public function setFetchDataSet($dataFields=false)
@@ -230,7 +231,7 @@ class CSearcher implements ArrayAccess
 		}
 		$query=$this->db->query($this->countSql);
 		if($query===false) return false;
-		$r=mysql_fetch_array($query,MYSQL_ASSOC);
+		$r=mysqli_fetch_assoc($query);
 		if($r===false) return false;
 		$this->count=intval($r['COUNT(*)']);
 		return $this->count;
@@ -239,13 +240,13 @@ class CSearcher implements ArrayAccess
 	private function gettableSetInfo($query)
 	{
 		
-		$num=mysql_num_fields($query);
+		$num=mysqli_num_fields($query);
 		$tableSet=array();
 		
 		for($i=0;$i<$num;$i++)
 		{
-			mysql_field_seek ($query,$i);
-			$obj=mysql_fetch_field($query,$i);
+			mysqli_field_seek ($query,$i);
+			$obj=mysqli_fetch_field($query,$i);
 			$tableSet[$obj->table]['collist'][$obj->name]=array(
 													'default' => $obj->def,
 													'primary_key' => $obj->primary_key);
@@ -284,17 +285,17 @@ class CSearcher implements ArrayAccess
 			$query=$this->db->query($this->sql);
 			if($query===false) return false;
 			$this->pks=array();
-			mysql_field_seek($query,0);
+			mysqli_field_seek($query,0);
 			while(1)
 			{
-				$meta=mysql_fetch_field($query);
+				$meta=mysqli_fetch_field($query);
 				if(!$meta) break;
 				if($meta->primary_key) $pks[]=$meta->name;
 			}
 			
 			$records=array();
 			$this->records=array();
-			while($row=mysql_fetch_array($query,MYSQL_ASSOC)) 
+			while($row=mysqli_fetch_assoc($query)) 
 			{
 				$this->records[]=$row;
 				$records[]=new CActiveRecord($this->table,$this->pks,$row);
@@ -326,7 +327,7 @@ class CSearcher implements ArrayAccess
 			$query=$this->db->query($this->sql);
 			if($query===false) return false;
 			$records=array();
-			while($row=mysql_fetch_array($query,MYSQL_ASSOC)) $records[]=$row;
+			while($row=mysqli_fetch_assoc($query)) $records[]=$row;
 			$this->records=$records;
 			return $records;
 		}else return $this->records;

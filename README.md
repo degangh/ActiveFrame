@@ -20,3 +20,7 @@ You should be able to see the welcome page by now.
 
 For more detail, please have a look at [Project Wiki](https://github.com/t83714/ActiveFrame/wiki).
 
+To deploy on SAE (Sina App Engine)
+1) use memecached for template file cache add saeme:// to $APP_ENV['tempRoot'] 
+2) disabled pcconnect
+

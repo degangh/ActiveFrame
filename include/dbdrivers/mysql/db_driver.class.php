@@ -40,10 +40,10 @@ class dbstuff {
 		if($this->version() > '4.1') {
 			$dbcharset='utf8';
 			if($dbcharset) {
-				@mysqli_query("SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary", $this->link);
+				@mysqli_query($this->link, "SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary");
 			}
 			if($this->version() > '5.0.1') {
-				@mysqli_query("SET sql_mode=''", $this->link);
+				@mysqli_query($this->link, "SET sql_mode=''");
 			}
 		}
 

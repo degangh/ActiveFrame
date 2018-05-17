@@ -245,23 +245,23 @@ class CSearcher implements ArrayAccess
 		
 		for($i=0;$i<$num;$i++)
 		{
-			mysqli_field_seek ($query,$i);
-			$obj=mysqli_fetch_field($query,$i);
+			mysqli_field_seek ($query,$i);	
+			$obj=mysqli_fetch_field($query);
 			$tableSet[$obj->table]['collist'][$obj->name]=array(
 													'default' => $obj->def,
-													'primary_key' => $obj->primary_key);
+													'primary_key' => $obj->flags & MYSQLI_PRI_KEY_FLAG);
 		}
 		foreach($tableSet as $key => $value)
 		{
 			foreach($value['collist'] as $k => $v)
 			{
-				if($v['primary_key']==1)
+				if($v['primary_key'])
 				{
 					$tableSet[$key]['primarykeyName']=$k;
 				}
 				
 			}
-			if(!isset($tableSet[$key]['primarykeyName'])) throw new RuntimeException('Can\'t load data set without primary key from table:'.$key);
+			if(!isset($tableSet[$key]['primarykeyName'])) throw new RuntimeException(__LINE__.'Can\'t load data set without primary key from table:'.$key);
 		}
 		return $tableSet;
 	}
@@ -279,31 +279,49 @@ class CSearcher implements ArrayAccess
 			$this->sql.=" LIMIT {$this->limit}";
 		}
 		if(empty($this->sql)) return array();
-
+		//return $this->db->activeRecordQuery($this->sql);
 		if(!isset($this->records))
 		{
 			$query=$this->db->query($this->sql);
 			if($query===false) return false;
-			$this->pks=array();
-			mysqli_field_seek($query,0);
-			while(1)
-			{
-				$meta=mysqli_fetch_field($query);
-				if(!$meta) break;
-				if($meta->primary_key) $pks[]=$meta->name;
-			}
+			$num=mysqli_num_fields($query);
+			$tableSet=array();
 			
+
+			for($i=0;$i<$num;$i++)
+			{
+				mysqli_field_seek ($query,$i);
+				$obj=mysqli_fetch_field($query);
+
+				$tableSet[$obj->table]['collist'][$obj->name]=array(
+														'default' => $obj->def,
+														'primary_key' => $obj->flags & MYSQLI_PRI_KEY_FLAG);
+			}
+
+			foreach($tableSet as $key => $value)
+			{
+				foreach($value['collist'] as $k => $v)
+				{
+					if($v['primary_key'])
+					{
+						$tableSet[$key]['primarykeyName']=$k;
+					}
+					
+				}
+				if(!isset($tableSet[$key]['primarykeyName'])) throw new RuntimeException(__LINE__.'Can\'t load data set without primary key from table:'.$key);
+			}
+			$this->tableSet=$tableSet;
 			$records=array();
 			$this->records=array();
 			while($row=mysqli_fetch_assoc($query)) 
 			{
 				$this->records[]=$row;
-				$records[]=new CActiveRecord($this->table,$this->pks,$row);
+				$records[]=new CActiveRecord($tableSet,$row);
 			}
 			return $records;
 		}else{
 			$records=array();
-			foreach($this->records as $r) $records[]=new CActiveRecord($this->table,$this->pks,$this->records);
+			foreach($this->records as $r) $records[]=new CActiveRecord($this->tableSet,$this->records);
 			return $records;
 		}
 	}

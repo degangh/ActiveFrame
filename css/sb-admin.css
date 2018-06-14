@@ -104,10 +104,11 @@ body.fixed-nav {
   position: relative;
   min-width: 45px;
 }
+
 #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown > .nav-link:after {
   float: right;
   width: auto;
-  content: "";
+  content: "\f105";
   border: none;
   font-family: "FontAwesome";
 }
@@ -145,6 +146,12 @@ body.fixed-nav {
   #mainNav .navbar-collapse .navbar-sidenav > .nav-item {
     width: 250px;
     padding: 0;
+    border-top: 1px solid #ddd;
+  }
+
+  #mainNav .navbar-collapse .navbar-sidenav > .nav-item:last-of-type {
+    
+    border-bottom: 1px solid #ddd;
   }
   #mainNav .navbar-collapse .navbar-sidenav > .nav-item > .nav-link {
     padding: 1em;
@@ -169,7 +176,7 @@ body.fixed-nav {
     padding-left: 3.75em;
   }
   #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown > .nav-link {
-    min-width: 0;
+    min-width: 65px;
   }
   #mainNav .navbar-collapse .navbar-nav > .nav-item.dropdown > .nav-link:after {
     width: 24px;
@@ -197,6 +204,10 @@ body.fixed-nav {
     flex-direction: column;
     margin-top: calc(100vh - 56px);
   }
+  #mainNav.fixed-top {
+    border-bottom: 1px solid #ddd;
+  }
+
   #mainNav.fixed-top .sidenav-toggler > .nav-item {
     width: 250px;
     padding: 0;
@@ -336,10 +347,14 @@ body.sidenav-toggled .navbar-sidenav-tooltip.show {
 }
 
 #mainNav.navbar-light .navbar-collapse .navbar-sidenav .nav-link-collapse:after {
-  color: rgba(0, 0, 0, 0.5);
+  color: #337ab7;
 }
 #mainNav.navbar-light .navbar-collapse .navbar-sidenav > .nav-item > .nav-link {
-  color: rgba(0, 0, 0, 0.5);
+  color: #337ab7
+}
+
+#mainNav.navbar-light .navbar-collapse .navbar-sidenav > .nav-item > .nav-link.active {
+  background-color: #eeeeee;
 }
 #mainNav.navbar-light .navbar-collapse .navbar-sidenav > .nav-item > .nav-link:hover {
   color: rgba(0, 0, 0, 0.7);

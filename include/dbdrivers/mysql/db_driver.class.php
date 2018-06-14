@@ -40,10 +40,10 @@ class dbstuff {
 		if($this->version() > '4.1') {
 			$dbcharset='utf8';
 			if($dbcharset) {
-				@mysqli_query("SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary", $this->link);
+				@mysqli_query($this->link, "SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary");
 			}
 			if($this->version() > '5.0.1') {
-				@mysqli_query("SET sql_mode=''", $this->link);
+				@mysqli_query($this->link,"SET sql_mode=''");
 			}
 		}
 
@@ -70,7 +70,8 @@ class dbstuff {
 		global $APP_ENV;
 		//mysql_unbuffered_query followed by mysqli_use_result
 		//unbuffered
-		$func = $type == 'UNBUFFERED' && @function_exists('mysqli_unbuffered_query') ? 'mysql_unbuffered_query' : 'mysqli_query';
+		//$func = $type == 'UNBUFFERED' && @function_exists('mysqli_unbuffered_query') ? 'mysql_unbuffered_query' : 'mysqli_query';
+		$func = $type == 'UNBUFFERED' && @function_exists('mysqli_unbuffered_query') ? 'mysqli_query' : 'mysqli_query';
 		if(!empty($params) && is_array($params)) {
 			foreach($params as $k=>$v)
 			{
@@ -113,7 +114,7 @@ class dbstuff {
 	}
 
 	function result($query, $row) {
-		$query = @mysqli_result($query, $row);
+		$query = mysqli_result($query, $row);
 		return $query;
 	}
 
@@ -242,16 +243,16 @@ class dbstuff {
 		for($i=0;$i<$num;$i++)
 		{
 			mysqli_field_seek ($query,$i);
-			$obj=mysqli_fetch_field($query,$i);
+			$obj=mysqli_fetch_field($query);
 			$tableSet[$obj->table]['collist'][$obj->name]=array(
 													'default' => $obj->def,
-													'primary_key' => $obj->primary_key);
+													'primary_key' => $obj->flags & MYSQLI_PRI_KEY_FLAG);
 		}
 		foreach($tableSet as $key => $value)
 		{
 			foreach($value['collist'] as $k => $v)
 			{
-				if($v['primary_key']==1)
+				if($v['primary_key'])
 				{
 					$tableSet[$key]['primarykeyName']=$k;
 				}

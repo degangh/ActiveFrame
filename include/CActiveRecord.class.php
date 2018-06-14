@@ -42,7 +42,8 @@ class CActiveRecord implements Iterator, ArrayAccess, Countable
 		$this->fieldNameList=array_keys($record);	
 	}
 	
-	function __destruct()
+
+	public function save()
 	{
 		if($this->bIfUpdate===false) $this->bIfUpdate=true;
 		else return;

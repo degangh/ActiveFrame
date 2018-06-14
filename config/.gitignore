@@ -1,1 +1,6 @@
-*.php
+*~
+*.swp
+*.bak
+Thumbs.db
+.DS_Store
+db.config.php

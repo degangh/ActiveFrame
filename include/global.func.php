@@ -488,4 +488,17 @@ function changeDBSetting($settingName)
 		$APP_ENV['db']=$APP_ENV['db_conection_pool'][$settingName];
 		return $currentSetting;
 }
+
+
+function camelCaseToUnderscore($input)
+{
+    return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+}
+
+function dd($var)
+{
+	echo "<pre>";
+	var_dump($var);
+	echo "</pre>";
+}
 ?>

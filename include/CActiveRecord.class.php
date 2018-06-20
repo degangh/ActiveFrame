@@ -49,6 +49,7 @@ class CActiveRecord implements Iterator, ArrayAccess, Countable
 		else return;
 		if($this->bInsert===true && $this->newRecord===true) return;
 		$this->sql=$this->getSqlStatement($this->table);
+		echo $this->sql;
 		if(!empty($this->sql)) {
 			$this->db->query($this->sql,$this->params);
 		}

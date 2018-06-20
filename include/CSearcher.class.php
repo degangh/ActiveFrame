@@ -378,6 +378,11 @@ class CSearcher implements ArrayAccess
 		if(empty($str)) return;
 		$this->andSearcherTextArray[]='('.$str.')';
 	}
+
+	public function fields()
+	{
+		return $this->tableSet;
+	}
 	
 }
 

@@ -17,12 +17,16 @@ class C_welcome extends CController
 
 	public function test()
 	{
-		$m = new Task;
+		$m = new Task(22);
 
-		$m->name = "no body";
-		$m->save();
+
 
 		dd($m);
+
+		$m->is_completed = 0;
+		$m->save();
+
+		dd ($m);
 	}
 }
 ?>

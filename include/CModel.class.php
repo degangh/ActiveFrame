@@ -11,10 +11,12 @@ abstract class CModel
 	protected $pk;
 	
 
-	public function __construct()
+	public function __construct($id)
 	{
 		if (!$this->table) $this->table= camelCaseToUnderscore($this->getClassName(get_class(($this))));
 		$this->init();
+
+		if ($id) $this->find($id);
 	}
 
 	public function __get($name)
@@ -73,7 +75,7 @@ abstract class CModel
 
 	}
 
-	public function find($id)
+	private function find($id)
 	{
 		$s = new CSearcher($this->table);
 		$s[$this->pk] = $id;

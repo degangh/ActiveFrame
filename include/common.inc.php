@@ -9,6 +9,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
 
 include APP_ROOT.'./include/CAppException.class.php';
 include APP_ROOT.'./include/CModel.class.php';
+include APP_ROOT.'./include/Session.class.php';
 
 //set_magic_quotes_runtime(0);
 $mtime = explode(' ', microtime());

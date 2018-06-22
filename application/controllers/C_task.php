@@ -4,6 +4,7 @@ class C_task extends CController
 	function __construct()
 	{
 		parent::__construct();
+		$this->auth->isLogin();
 	}
 	
 	public function index()

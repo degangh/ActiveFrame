@@ -4,12 +4,11 @@ class Auth
 {
     public function isLogin()
     {
-
+        if (!$_SESSION['user']) throw new AuthException(AuthException::NOT_LOGIN);
     }
 
     public function login($username, $password)
     {
-        loadException('AuthException');
         loadModel('User');
 
         $user = new User;
@@ -24,6 +23,7 @@ class Auth
 
     public function logout()
     {
-        
+        session_destroy();
+        redirect('login');
     }
 }

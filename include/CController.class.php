@@ -16,6 +16,8 @@ class CController
 	**/
 	function CController($auto_lang_support=true,$auto_start_session=false)
 	{
+		Session::start();
+		loadException('AuthException');
 		loadModel('Auth');
 
 		$this->auth = new Auth;

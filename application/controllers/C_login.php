@@ -24,7 +24,7 @@ class C_login extends CController
 
 		$this->auth->login($username, $password);
 
-		redirect('welcome');
+		redirect('task');
 		
 
 	}

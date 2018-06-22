@@ -5,6 +5,7 @@ class C_welcome extends CController
 	{
 		parent::__construct();
 		loadModel("Task");
+		loadException('AuthException');
 	}
 	
 	public function index()
@@ -27,6 +28,11 @@ class C_welcome extends CController
 		$m->save();
 
 		dd ($m);
+	}
+
+	public function testException()
+	{
+		if (!$_GET['check']) throw new AuthException("oops");
 	}
 }
 ?>

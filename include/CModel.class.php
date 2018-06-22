@@ -11,7 +11,7 @@ abstract class CModel
 	protected $pk;
 	
 
-	public function __construct($id)
+	public function __construct($id = null)
 	{
 		if (!$this->table) $this->table= camelCaseToUnderscore($this->getClassName(get_class(($this))));
 		$this->init();

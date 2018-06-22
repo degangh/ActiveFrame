@@ -9,12 +9,17 @@ class CController
 	
 	 public $js=array();
 	 public $css=array();
+	 protected $auth = null;
 	/**
 	* Controller constructor
 	* @author Jacky Jiang
 	**/
 	function CController($auto_lang_support=true,$auto_start_session=false)
 	{
+		loadModel('Auth');
+
+		$this->auth = new Auth;
+		
 		if($auto_start_session) SessionManager::start();
 		loadLib('BrowserManager');
 		global $APP_ENV;

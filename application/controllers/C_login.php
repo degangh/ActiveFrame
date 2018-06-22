@@ -1,14 +1,9 @@
 <?php
 class C_login extends CController
 {
-	private $auth = null;
 	
 	function __construct()
 	{
-		loadModel('Auth');
-
-		$this->auth = new Auth;
-
 		parent::__construct();
 	}
 	

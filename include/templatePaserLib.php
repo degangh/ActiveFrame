@@ -91,15 +91,15 @@ function parse_template($file,$ifWidget=false) {
 	
 	$template = preg_replace("/\s*\{widget\s+([^\s]+?)\}\s*/is", "\n<?=loadwidget('\\1'); ?>\n", $template);
 	
-	$template = preg_replace("/\s*\{eval\s+(.+?)\}\s*/ies", "stripvtags('\n<? \\1  '.PHP_CLOSE_TAG.'\n','')", $template);
-	$template = preg_replace("/\s*\{echo\s+(.+?)\}\s*/ies", "stripvtags('\n<? echo \\1; '.PHP_CLOSE_TAG.'\n','')", $template);
-	$template = preg_replace("/\s*\{elseif\s+(.+?)\}\s*/ies", "stripvtags('\n<? } elseif(\\1) { '.PHP_CLOSE_TAG.'\n','')", $template);
+	$template = preg_replace("/\s*\{eval\s+(.+?)\}\s*/ies", "stripvtags('\n<?php \\1  '.PHP_CLOSE_TAG.'\n','')", $template);
+	$template = preg_replace("/\s*\{echo\s+(.+?)\}\s*/ies", "stripvtags('\n<?php echo \\1; '.PHP_CLOSE_TAG.'\n','')", $template);
+	$template = preg_replace("/\s*\{elseif\s+(.+?)\}\s*/ies", "stripvtags('\n<?php } elseif(\\1) { '.PHP_CLOSE_TAG.'\n','')", $template);
 	$template = preg_replace("/\s*\{else\}\s*/is", "\n<? } else { ".PHP_CLOSE_TAG."\n", $template);
 
 	for($i = 0; $i < $nest; $i++) {
-		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<? if(is_array(\\1)) { foreach(\\1 as \\2) { '.PHP_CLOSE_TAG,'\n\\3\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
-		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<? if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { '.PHP_CLOSE_TAG,'\n\\4\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
-		$template = preg_replace("/\s*\{if\s+(.+?)\}\s*(.+?)\s*\{\/if\}\s*/ies", "stripvtags('\n<? if(\\1) { '.PHP_CLOSE_TAG,'\n\\2\n<? } '.PHP_CLOSE_TAG.'\n')", $template);
+		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<? if(is_array(\\1)) { foreach(\\1 as \\2) { '.PHP_CLOSE_TAG,'\n\\3\n<?php } } '.PHP_CLOSE_TAG.'\n')", $template);
+		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<?php if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { '.PHP_CLOSE_TAG,'\n\\4\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
+		$template = preg_replace("/\s*\{if\s+(.+?)\}\s*(.+?)\s*\{\/if\}\s*/ies", "stripvtags('\n<?php if(\\1) { '.PHP_CLOSE_TAG,'\n\\2\n<?php } '.PHP_CLOSE_TAG.'\n')", $template);
 	}
 	$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1".PHP_CLOSE_TAG, $template);
 
@@ -124,7 +124,7 @@ function parse_template($file,$ifWidget=false) {
 	
 	if(!empty($phpCodeInTpl)) $template =$phpCodeInTpl.$template;
 	
-	$template = "<? if(!defined('APP_ROOT')) exit('Access Denied'); ".PHP_CLOSE_TAG.$template;
+	$template = "<?php if(!defined('APP_ROOT')) exit('Access Denied'); ".PHP_CLOSE_TAG.$template;
 	
 	
 	if(!@$fp = fopen($objfile, 'w')) {

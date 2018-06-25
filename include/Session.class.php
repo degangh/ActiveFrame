@@ -12,6 +12,7 @@ class Session
         // Set session cookie options, tbd
 		//session_set_cookie_params($limit, $path, $domain, $https, true);
         session_start();
+        if (!self::has('_token')) self::set('_token', bin2hex(openssl_random_pseudo_bytes(32)));
     }
     public static function flash($key, $value)
     {
@@ -66,6 +67,11 @@ class Session
     public function has($key)
     {
         return isset($_SESSION[$key]);
+    }
+
+    public function csrf()
+    {
+        if (self::has('_token')) return self::get('_token');
     }
 }
 

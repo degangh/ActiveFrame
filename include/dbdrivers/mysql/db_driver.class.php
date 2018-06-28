@@ -208,11 +208,17 @@ class dbstuff {
 	Only works on table has a primary key with the name id
 	
 	*/
-	function oQuery($sql)
+	function oQuery($sql,$params=null,$arg1=null,$arg2=null)
 	{
-		$r=$this->query($sql);
-		$table=mysqli_field_table($r,0);
-		return new CCollection($table,$r);
+		$limtText='';
+		if(isset($arg2)) $limtText=" LIMIT {$arg1},{$arg2}";	
+		elseif (isset($arg1)) $limtText=" LIMIT {$arg1}";
+		$sql.=$limtText;
+		$query=$this->query($sql,$params);
+		if($query===false) return false;
+		while($obj=mysqli_fetch_object($query)) $records[]=$obj;
+		if($records==false) $records=array();
+		return $records;
 	}
 	
 	function fetchSmartRecord($query)

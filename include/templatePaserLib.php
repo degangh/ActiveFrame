@@ -39,7 +39,7 @@ function parse_template($file,$ifWidget=false) {
 	}
 	$template = @fread($fp, filesize($tplfile));
 	fclose($fp);
-	$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9\-\.\[\]_\"\'\$\x7f-\xff]+\])*)"; 
+	$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][\-\>a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9\-\.\[\]_\"\'\$\x7f-\xff]+\])*)"; 
 	$const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
 	$function_regexp="([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
 	
@@ -79,7 +79,7 @@ function parse_template($file,$ifWidget=false) {
 	
 	$template = str_replace("{LF}", "<?=\"\\n\"?".">", $template);
 
-	$template = preg_replace("/\{(\\\$[a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]+)\}/s", "<?=\\1?>", $template);
+	$template = preg_replace("/\{(\\\$[a-zA-Z0-9_\[\]\-\>\'\"\$\x7f-\xff]+)\}/s", "<?=\\1?>", $template);
 	$template = preg_replace("/$var_regexp/es", "addquote('<?=\\1?'.'>')", $template);
 	$template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "addquote('<?=\\1?>')", $template); 
 	
@@ -97,10 +97,8 @@ function parse_template($file,$ifWidget=false) {
 	$template = preg_replace("/\s*\{else\}\s*/is", "\n<? } else { ".PHP_CLOSE_TAG."\n", $template);
 
 	for($i = 0; $i < $nest; $i++) {
-
-		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<?php if(is_array(\\1)) { foreach(\\1 as \\2) { '.PHP_CLOSE_TAG,'\n\\3\n<?php } } '.PHP_CLOSE_TAG.'\n')", $template);
-		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<?php if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { '.PHP_CLOSE_TAG,'\n\\4\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
 		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<?php if(is_array(\\1)) { foreach(\\1 as \\2) { '.PHP_CLOSE_TAG,'\n\\3\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
+		$template = preg_replace("/\s*\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}\s*(.+?)\s*\{\/loop\}\s*/ies", "stripvtags('\n<? if(is_array(\\1)) { foreach(\\1 as \\2 => \\3) { '.PHP_CLOSE_TAG,'\n\\4\n<? } } '.PHP_CLOSE_TAG.'\n')", $template);
 		$template = preg_replace("/\s*\{if\s+(.+?)\}\s*(.+?)\s*\{\/if\}\s*/ies", "stripvtags('\n<?php if(\\1) { '.PHP_CLOSE_TAG,'\n\\2\n<?php } '.PHP_CLOSE_TAG.'\n')", $template);
 	}
 	$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1".PHP_CLOSE_TAG, $template);
@@ -114,14 +112,14 @@ function parse_template($file,$ifWidget=false) {
 	$template= preg_replace('/{\<\?=(.+?)\?\>\s+(\S[^}]*)}/ies', "stripvtags('{\\1 \\2}','')", $template);//---recover var format
 	
 
-	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)}/is', "<?=\\2(\\1)?>", $template);
-	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)}/is', "<?=\\2(\\1,\\3)?>", $template);
-	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)\s+([^\s}]+)}/is',"<?=\\2(\\1,\\3,\\4)?>", $template);
-	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)\s+([^\s}]+)\s+([^\s}]+)}/is', "<?=\\2(\\1,\\3,\\4,\\5)?>", $template);
+	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][\-\>a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)}/is', "<?=\\2(\\1)?>", $template);
+	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][\-\>a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)}/is', "<?=\\2(\\1,\\3)?>", $template);
+	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][\-\>a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)\s+([^\s}]+)}/is',"<?=\\2(\\1,\\3,\\4)?>", $template);
+	$template= preg_replace('/{(\$[a-zA-Z_\x7f-\xff][\-\>a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]*)\s+([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s+([^\s}]+)\s+([^\s}]+)\s+([^\s}]+)}/is', "<?=\\2(\\1,\\3,\\4,\\5)?>", $template);
 	
 	if($bLoadLanguageFile==true) 
 	{
-		foreach($langaugeFiles as $langaugeFile) $template = "<? languagestack('$file','$langaugeFile'); ".PHP_CLOSE_TAG.$template;
+		foreach($langaugeFiles as $langaugeFile) $template = "<?php languagestack('$file','$langaugeFile'); ".PHP_CLOSE_TAG.$template;
 	}
 	
 	if(!empty($phpCodeInTpl)) $template =$phpCodeInTpl.$template;
